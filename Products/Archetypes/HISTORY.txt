@@ -1,7 +1,10 @@
 2.0 - unreleased
 ================
 
-  * updated the name of the buttons on the edit form, and updated all the 
+  * Changed all references to `here` in all templates to `context`.
+    [hannosch]
+
+  * Updated the name of the buttons on the edit form, and updated all the 
     places that are using this buttons, refs #7559
     [lucielejard]
 

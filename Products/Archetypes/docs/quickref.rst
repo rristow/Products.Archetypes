@@ -265,7 +265,7 @@ schemata
    a field called ``fieldname``: 
 
    - accessor: ``getFieldname()`` (when called from a Page Template:
-     ``here/getFieldname``)
+     ``context/getFieldname``)
 
    - mutator: ``setFieldname()``
 
