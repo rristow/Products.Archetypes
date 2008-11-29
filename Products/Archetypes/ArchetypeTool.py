@@ -222,8 +222,8 @@ last_load = DateTime()
 class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
     """Archetypes tool, manage aspects of Archetype instances.
     """
-    id = TOOL_NAME
-    meta_type = TOOL_NAME.title().replace('_', ' ')
+    id = 'archetype_tool'
+    meta_type = 'Archetype Tool'
 
     implements(IArchetypeTool)
 
@@ -235,20 +235,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
 
     manage_options = (
         (
-        { 'label'  : 'Types',
-          'action' : 'manage_debugForm',
-          },
 
         {  'label'  : 'Catalogs',
            'action' : 'manage_catalogs',
-           },
-
-        { 'label'  : 'Templates',
-          'action' : 'manage_templateForm',
-          },
-
-        {  'label'  : 'UIDs',
-           'action' : 'manage_uids',
            },
 
         { 'label'  : 'Update Schema',
@@ -263,23 +252,11 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
         )
 
     security.declareProtected(permissions.ManagePortal,
-                              'manage_uids')
-    manage_uids = PageTemplateFile('viewContents', _www)
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_templateForm')
-    manage_templateForm = PageTemplateFile('manageTemplates',_www)
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_debugForm')
-    manage_debugForm = PageTemplateFile('generateDebug', _www)
-    security.declareProtected(permissions.ManagePortal,
                               'manage_updateSchemaForm')
     manage_updateSchemaForm = PageTemplateFile('updateSchemaForm', _www)
     security.declareProtected(permissions.ManagePortal,
                               'manage_migrationForm')
     manage_migrationForm = PageTemplateFile('migrationForm', _www)
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_dumpSchemaForm')
-    manage_dumpSchemaForm = PageTemplateFile('schema', _www)
     security.declareProtected(permissions.ManagePortal,
                               'manage_catalogs')
     manage_catalogs = PageTemplateFile('manage_catalogs', _www)
@@ -294,22 +271,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
         self.catalog_map['Reference'] = [] # References not in portal_catalog
         # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
-
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_dumpSchema')
-    def manage_dumpSchema(self, REQUEST=None):
-        """XML Dump Schema of passed in class.
-        """
-        from Products.Archetypes.Schema import getSchemata
-        package = REQUEST.get('package', '')
-        type_name = REQUEST.get('type_name', '')
-        spec = self.getTypeSpec(package, type_name)
-        type = self.lookupType(package, type_name)
-        options = {}
-        options['classname'] = spec
-        options['schematas'] = getSchemata(type['klass'])
-        REQUEST.RESPONSE.setHeader('Content-Type', 'text/xml')
-        return self.manage_dumpSchemaForm(**options)
 
     # Template Management
     # Views can be pretty generic by iterating the schema so we don't
@@ -367,25 +328,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
         """Creates binding between a type and its associated views.
         """
         self._templates[portal_type] = templateList
-
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_templates')
-    def manage_templates(self, REQUEST=None):
-        """Sets all the template/type mappings.
-        """
-        prefix = 'template_names_'
-        for key in REQUEST.form.keys():
-            if key.startswith(prefix):
-                k = key[len(prefix):]
-                v = REQUEST.form.get(key)
-                self.bindTemplate(k, v)
-
-        add = REQUEST.get('addTemplate')
-        name = REQUEST.get('newTemplate')
-        if add and name:
-            self.registerTemplate(name)
-
-        return REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_templateForm')
     
     security.declareProtected(permissions.View, 'typeImplementsInterfaces')
     def typeImplementsInterfaces(self, type, interfaces):
@@ -501,49 +443,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
                 return t
         return None
 
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_installType')
-    def manage_installType(self, typeName, package=None,
-                           uninstall=None, REQUEST=None):
-        """Un/Install a type TTW.
-        """
-        typesTool = getToolByName(self, 'portal_types')
-        try:
-            typesTool._delObject(typeName)
-        except (ConflictError, KeyboardInterrupt):
-            raise
-        except: # XXX bare exception
-            pass
-        if uninstall is not None:
-            if REQUEST:
-                return REQUEST.RESPONSE.redirect(self.absolute_url() +
-                                                 '/manage_debugForm')
-            return
-
-        typeinfo_name = '%s: %s' % (package, typeName)
-
-        # We want to run the process code which might not have been called
-        typeDesc = getType(typeName, package)
-        process_types([typeDesc], package)
-        klass = typeDesc['klass']
-        
-        # get the meta type of the FTI from the class, use the default FTI as default
-        fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
-        if fti_meta_type in (None, 'simple item'):
-            fti_meta_type = FactoryTypeInformation.meta_type
-
-        typesTool.manage_addTypeInformation(fti_meta_type,
-                                            id=typeName,
-                                            typeinfo_name=typeinfo_name)
-        t = getattr(typesTool, typeName, None)
-        if t:
-            t.title = getattr(klass, 'archetype_name',
-                              typeDesc['portal_type'])
-
-        if REQUEST:
-            return REQUEST.RESPONSE.redirect(self.absolute_url() +
-                                             '/manage_debugForm')
-
     security.declarePublic('getSearchWidgets')
     def getSearchWidgets(self, package=None, type=None,
                          context=None, nosort=None):
@@ -658,49 +557,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
 
 
     ## Management Forms
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_doGenerate')
-    def manage_doGenerate(self, sids=(), REQUEST=None):
-        """(Re)generate types.
-        """
-        schemas = []
-        for sid in sids:
-            schemas.append(self.getSchema(sid))
-
-        for s in schemas:
-            s.generate()
-
-        if REQUEST:
-            return REQUEST.RESPONSE.redirect(self.absolute_url() +
-                                             '/manage_workspace')
-
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_inspect')
-    def manage_inspect(self, UID, REQUEST=None):
-        """Dump some things about an object hook in the debugger for now.
-        """
-        object = self.getObject(UID)
-        log(object, object.Schema(), dir(object))
-
-        return REQUEST.RESPONSE.redirect(self.absolute_url() +
-                                         '/manage_uids')
-
-    security.declareProtected(permissions.ManagePortal,
-                              'manage_reindex')
-    def manage_reindex(self, REQUEST=None):
-        """Assign UIDs to all basecontent objects.
-        """
-
-        def _index(object, archetype_tool):
-            archetype_tool.registerContent(object)
-
-        self._rawEnum(_index, self)
-
-        return REQUEST.RESPONSE.redirect(self.absolute_url() +
-                                         '/manage_uids')
-
-    security.declareProtected(permissions.ManagePortal, 'index')
-    index = manage_reindex
 
     def _listAllTypes(self):
         """List all types -- either currently known or known to us.
@@ -898,23 +754,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, Folder):
         res.sort()
 
         return res
-
-    security.declareProtected(permissions.View, 'visibleLookup')
-    def visibleLookup(self, field, vis_key, vis_value='visible'):
-        """Checks the value of a specific key in the field widget's
-        'visible' dictionary.
-
-        Returns True or False so it can be used within a lambda as
-        the predicate for a filterFields call.
-        """
-        vis_dict = field.widget.visible
-        value = ''
-        if vis_dict.has_key(vis_key):
-            value = field.widget.visible[vis_key]
-        if value == vis_value:
-            return True
-        else:
-            return False
 
     def has_graphviz(self):
         """Runtime check for graphviz, used in condition on tab.

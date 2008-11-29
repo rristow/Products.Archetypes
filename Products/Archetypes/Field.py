@@ -1446,8 +1446,7 @@ class LinesField(ObjectField):
             value =  value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v and v.strip()]
-        if config.ZOPE_LINES_IS_TUPLE_TYPE:
-            value = tuple(value)
+        value = tuple(value)
         ObjectField.set(self, instance, value, **kwargs)
 
     security.declarePrivate('get')
@@ -1458,10 +1457,7 @@ class LinesField(ObjectField):
             data = [v for v in value]
         else:
             data = [encode(v, instance, **kwargs) for v in value]
-        if config.ZOPE_LINES_IS_TUPLE_TYPE:
-            return tuple(data)
-        else:
-            return data
+        return tuple(data)
 
     security.declarePrivate('getRaw')
     def getRaw(self, instance, **kwargs):

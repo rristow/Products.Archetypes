@@ -1,6 +1,10 @@
 2.0 - unreleased
 ================
 
+  * Removed some BBB code, removed opt-out code for features introduced and
+    made default years ago. Removed the TTW tool.
+    [hannosch]
+
   * Changed all references to `here` in all templates to `context`.
     [hannosch]
 

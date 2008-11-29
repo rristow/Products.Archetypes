@@ -21,7 +21,6 @@ from Products.Archetypes.interfaces import ISchema
 from Products.Archetypes.interfaces.base import IBaseObject as z2IBaseObject
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.validator import AttributeValidator
-from Products.Archetypes.config import ATTRIBUTE_SECURITY
 from Products.Archetypes.config import RENAME_AFTER_CREATION_ATTEMPTS
 from Products.Archetypes.ArchetypeTool import getType
 
@@ -118,11 +117,10 @@ class BaseObject(Referenceable):
 
     # Protect AttributeStorage-based attributes. See the docstring of
     # AttributeValidator for the low-down.
-    if ATTRIBUTE_SECURITY:
-        attr_security = AttributeValidator()
-        security.setDefaultAccess(attr_security)
-        # Delete so it cannot be accessed anymore.
-        del attr_security
+    attr_security = AttributeValidator()
+    security.setDefaultAccess(attr_security)
+    # Delete so it cannot be accessed anymore.
+    del attr_security
 
     schema = content_type
     _signature = None

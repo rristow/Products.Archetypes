@@ -8,7 +8,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
-from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
+from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.utils import shasattr
 
@@ -22,11 +22,7 @@ class CatalogMultiplex(CMFCatalogAware):
         at = getToolByName(self, TOOL_NAME, None)
         if at is None:
             return []
-
-        if CATALOGMAP_USES_PORTALTYPE:
-            return at.getCatalogsByType(self.portal_type)
-        else:
-            return at.getCatalogsByType(self.meta_type)
+        return at.getCatalogsByType(self.portal_type)
 
     security.declareProtected(ModifyPortalContent, 'indexObject')
     def indexObject(self):
