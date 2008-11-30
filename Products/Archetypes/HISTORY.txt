@@ -1,6 +1,9 @@
 2.0 - unreleased
 ================
 
+  * Removed a couple of assert statements which wouldn't help in any way.
+    [hannosch]
+
   * Removed some BBB code, removed opt-out code for features introduced and
     made default years ago. Removed the TTW tool.
     [hannosch]
