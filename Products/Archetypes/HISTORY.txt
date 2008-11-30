@@ -1,6 +1,9 @@
 2.0 - unreleased
 ================
 
+  * Fixed undefined names in the base and base metadata view templates.
+    [hannosch]
+
   * Removed a couple of assert statements which wouldn't help in any way.
     [hannosch]
 

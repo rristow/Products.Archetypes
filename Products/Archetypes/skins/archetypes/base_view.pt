@@ -21,12 +21,13 @@
       create additional defines for each slot it fills.
     </tal:comment>
     <tal:js define="fields python:context.Schema().viewableFields(here);
-                    js python:context.getUniqueWidgetAttr(fields, 'helper_js')"
+                    js python:context.getUniqueWidgetAttr(fields, 'helper_js');
+                    portal_url context/portal_url;"
             condition="js"
             repeat="item js">
       <script type="text/javascript"
               charset="iso-8859-1"
-              tal:condition="python:exists('portal/%s' % item)"
+              tal:condition="python:exists('context/%s' % item)"
               tal:attributes="src string:$portal_url/$item">
       </script>
     </tal:js>
@@ -47,13 +48,14 @@
       create additional defines for each slot it fills.
     </tal:comment>
     <tal:css define="fields python:context.Schema().viewableFields(here);
-                     css python:context.getUniqueWidgetAttr(fields, 'helper_css')"
+                     css python:context.getUniqueWidgetAttr(fields, 'helper_css');
+                     portal_url context/portal_url;"
              condition="css"
              repeat="item css">
       <style type="text/css"
              media="all"
-             tal:condition="python:exists('portal/%s' % item)"
-             tal:content="structure string:<!-- @import url($portal_url/$item); -->">
+             tal:condition="python:exists('context/%s' % item)"
+             tal:content="structure string:&lt;!-- @import url($portal_url/$item); --&gt;">
       </style>
     </tal:css>
     <tal:block define="portal_type python:context.getPortalTypeName().lower().replace(' ', '_');

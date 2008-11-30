@@ -26,19 +26,21 @@
                condition="macro">
       <metal:block use-macro="macro" />
     </tal:block>
-    <tal:css condition="css"
+    <tal:css define="portal_url context/portal_url;"
+             condition="css"
              repeat="item css">
       <style type="text/css"
              media="all"
-             tal:condition="python:exists('portal/%s' % item)"
-             tal:content="structure string:<!-- @import url($portal_url/$item); -->">
+             tal:condition="python:exists('context/%s' % item)"
+             tal:content="structure string:&lt;!-- @import url($portal_url/$item); --&gt;">
       </style>
     </tal:css>
-    <tal:js condition="js"
+    <tal:js define="portal_url context/portal_url;"
+            condition="js"
             repeat="item js">
       <script type="text/javascript"
               charset="iso-8859-1"
-              tal:condition="python:exists('portal/%s' % item)"
+              tal:condition="python:exists('context/%s' % item)"
               tal:attributes="src string:$portal_url/$item">
       </script>
     </tal:js>
