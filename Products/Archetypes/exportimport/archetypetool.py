@@ -1,5 +1,3 @@
-from sets import Set
-
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IArchetypeTool
 from Products.Archetypes.config import TOOL_NAME
@@ -46,7 +44,7 @@ class ArchetypeToolXMLAdapter(XMLAdapterBase):
                               for e in type.getElementsByTagName('catalog')]
                     already = [cat.getId() for cat in
                                self.context.getCatalogsByType(portaltype)]
-                    catalogs=Set(catalogs + already)
+                    catalogs=set(catalogs + already)
                     self.context.setCatalogsByType(portaltype, list(catalogs))
 
 
