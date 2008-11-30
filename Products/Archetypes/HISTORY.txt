@@ -1,6 +1,9 @@
 2.0 - unreleased
 ================
 
+  * Removed the unique helper method and use a set instead.
+    [hannosch]
+
   * Fixed undefined names in the base and base metadata view templates.
     [hannosch]
 

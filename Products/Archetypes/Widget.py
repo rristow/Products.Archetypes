@@ -7,7 +7,6 @@ from Products.CMFCore.Expression import Expression
 from Products.CMFCore.Expression import createExprContext
 
 from Products.Archetypes.utils import className
-from Products.Archetypes.utils import unique
 from Products.Archetypes.utils import capitalize
 from Products.Archetypes.generator import macrowidget
 from Products.Archetypes.debug import log
@@ -518,7 +517,7 @@ class KeywordWidget(TypesWidget):
             new_keywords = []
 
         value = existing_keywords + new_keywords
-        value = [k for k in list(unique(value)) if k]
+        value = [k for k in set(list(value)) if k]
 
         if not value and emptyReturnsMarker: return empty_marker
 
