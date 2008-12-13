@@ -1,6 +1,9 @@
 2.0 - unreleased
 ================
 
+  * Removed session storage and retrieval for form values.
+    [hannosch]
+
   * Fixed undefined names in the base and base metadata view templates.
     [hannosch]
 
