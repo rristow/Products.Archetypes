@@ -363,7 +363,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         brels = account.getBRelationships()
         self.assertEquals(brels, ['From'])
         brefs = account.getBRefs('From')
-        self.assertEquals(brefs, [payment, payment2])
+        self.assertEquals(set(brefs), set([payment, payment2]))
 
         brels = payment.getBRelationships()
         self.assertEquals(brels, ['Owns'])
