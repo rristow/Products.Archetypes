@@ -1,4 +1,3 @@
-import Globals # Avoid import loop
 import bbb
 
 from Products.Archetypes.config import *
