@@ -32,8 +32,8 @@ from Products.CMFCore.interfaces import ICatalogTool
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
-from Globals import InitializeClass
-from Globals import PersistentMapping
+from App.class_init import InitializeClass
+from Persistence import PersistentMapping
 from OFS.Folder import Folder
 from Products.ZCatalog.interfaces import IZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile

@@ -1,6 +1,10 @@
 2.0 - unreleased
 ================
 
+  * Declare package dependencies and fixed deprecation warnings for use
+    of Globals.
+    [hannosch]
+
   * Removed session storage and retrieval for form values.
     [hannosch]
 
