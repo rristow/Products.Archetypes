@@ -255,7 +255,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
             RESPONSE.redirect(
             REQUEST.URL1 +
             '/manage_catalogView?manage_tabs_message=' +
-            urllib.quote('Catalog Rebuilded\n'
+            urllib.quote('Catalog rebuilt.\n'
                          'Total time: %s\n'
                          'Total CPU time: %s'
                          % (`elapse`, `c_elapse`))
