@@ -67,7 +67,8 @@
                         tal:attributes="name string:${fieldName}_options;
                                         id string:${fieldName}_options;
                                         size widget/size;
-                                        onDblClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')">
+                                        onDblClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')"
+                        tal:condition="python:len(vocab)">
       
                         <tal:block tal:repeat="vocab_item vocab">
                           <option

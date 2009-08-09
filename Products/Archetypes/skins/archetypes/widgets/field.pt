@@ -82,7 +82,7 @@
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label class="formQuestion" i18n:translate=""
                  tal:content="python:widget.Label(here)"
-                 tal:attributes="for python:field.getName()">
+                 tal:attributes="for string:archetypes-fieldname-${field/getName}">
           </label>
           <span class="fieldRequired"
                 tal:condition="field/required"

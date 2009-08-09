@@ -33,7 +33,7 @@
 
         </tal:block>
 
-        <ul tal:condition="field/multiValued">
+        <ul tal:condition="python:field.multiValued() and len(refs)">
           <li tal:repeat="ref refs">
              <tal:block tal:define="obj ref/getTargetObject">
                 <a href="#"
@@ -103,7 +103,8 @@
             <!-- pulldown for longer vocabs -->
             <select tal:attributes="name fieldName;
                                     id fieldName;
-                                    multiple python:multiVal and 'multiple' or None;">
+                                    multiple python:multiVal and 'multiple' or None;"
+                    tal:condition="python:len(vocab)">
 
              <tal:item tal:repeat="item vocab">
               <option selected="selected"

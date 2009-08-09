@@ -39,14 +39,13 @@
             name="subject:lines"
             rows="11"
             cols="15"
-            wrap="off"
             tal:attributes="id string:${fieldName}_keywords;
                             name string:${fieldName}_keywords:lines;"
             tal:define="subject python:[item for item in value if item not in allowedKeywords]"
             tal:content="python:'\n'.join(subject)">
               Selected categories
           </textarea>
-
+<script type="text/javascript" tal:content="string:document.getElementById('${fieldName}_keywords').setAttribute('wrap', 'off');" />
         </div>
       </tal:condition>
 
@@ -61,7 +60,7 @@
             name="predefined_subjects:list"
             size="14"
             multiple="multiple"
-            tal:condition="python:format!='checkbox'"
+            tal:condition="python:format!='checkbox' and len(allowedKeywords)"
             tal:attributes="id string:${fieldName}_existing_keywords;
                             name string:${fieldName}_existing_keywords:list;">
           <option value="#" tal:repeat="keyword allowedKeywords"
