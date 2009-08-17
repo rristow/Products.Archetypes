@@ -55,10 +55,13 @@ from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
 from zope import event
-from zope.interface import implements, Interface
+from zope.interface import implements, Interface, directlyProvidedBy
 from zope.component import subscribers
 from zope.component import queryMultiAdapter
 from zope.component import queryUtility
+from zope.component import getAdapters
+
+from plone.memoize import ram
 
 # Import conditionally, so we don't introduce a hard depdendency
 try:
@@ -74,7 +77,29 @@ try:
 except ImportError:
     HAS_LOCKING = False
 
+try:
+    from archetypes.schemaextender.interfaces import \
+        ISchemaExtender, IBrowserLayerAwareExtender
+    HAS_SCHEMA_EXTENDER = True
+except ImportError:
+    HAS_SCHEMA_EXTENDER = False
+
 _marker = []
+
+def cache_key(fun, obj):
+    # Determine if any browser layer aware schema extenders
+    # exist for this object. If there are any they need to be
+    # part of the key.
+    layers = []
+    if HAS_SCHEMA_EXTENDER:
+        for name, adapter in getAdapters((obj,), ISchemaExtender):
+            if IBrowserLayerAwareExtender.providedBy(adapter):
+                layers.append(adapter.layer)
+
+    directifaces = directlyProvidedBy(obj).flattened()
+    ifaces = [iface.__identifier__ for iface in directifaces]
+    return frozenset([obj.__class__.__name__, obj.portal_type] + ifaces 
+        + layers + [id(obj.__class__)])
 
 content_type = Schema((
 
@@ -817,16 +842,27 @@ class BaseObject(Referenceable):
         """
         return getSchemata(self)
 
-    def Schema(self):
+    @ram.cache(cache_key)
+    def _Schema(self):
+        """This patch caches the unwrapped schema
+        """
+        schema = ISchema(self)
+        return schema
+
+    def Schema(self, use_cache=True):
         """Return a (wrapped) schema instance for this object instance.
         """
-        return ImplicitAcquisitionWrapper(ISchema(self), self)
+        if use_cache:
+            schema = self._Schema()
+        else:
+            schema = ISchema(self)
+        return ImplicitAcquisitionWrapper(schema, self)
 
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
         """Determines whether the current object's schema is up to date.
         """
-        return self._signature == self.Schema().signature()
+        return self._signature == self.Schema(use_cache=False).signature()
 
     security.declarePrivate('_updateSchema')
     def _updateSchema(self, excluded_fields=[], out=None,
@@ -843,6 +879,8 @@ class BaseObject(Referenceable):
         at the same time -- you really should restart zope after doing
         a schema update).
         """
+        self.invalidateSchema()
+
         if out is not None:
             print >> out, 'Updating %s' % (self.getId())
 
@@ -904,6 +942,9 @@ class BaseObject(Referenceable):
                                                name, str(values[name])))
         # Make sure the changes are persisted
         self._p_changed = 1
+
+        self.invalidateSchema()
+
         if out is not None:
             return out
 
@@ -1137,6 +1178,14 @@ class BaseObject(Referenceable):
         else:
             # Raising AttributeError will look up views for us
             raise AttributeError(name)
+
+    def invalidateSchema(self):
+        """Any code that changes the schema at runtime must call this
+        method to clear the old schema from the cache.
+        """
+        ram.choose_cache('Products.Archetypes.BaseObject._Schema').ramcache.invalidateAll()
+        # todo: figure out why line below is not working as expected
+        #ram.choose_cache('archetypes.schematuning.patch._Schema').ramcache.invalidate(cache_key(None, self))
 
 InitializeClass(BaseObject)
 
