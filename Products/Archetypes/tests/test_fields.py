@@ -162,7 +162,8 @@ class ProcessingTest(ATSiteTestCase):
         txt_file.seek(0)
         img_file.seek(0)
 
-    def makeDummy(self):
+    def makeDummy(self):       
+        self._dummy.invalidateSchema()
         return self._dummy
 
     def test_processing(self):
@@ -297,12 +298,15 @@ class ProcessingTest(ATSiteTestCase):
         self.failUnlessEqual(field.Vocabulary(), DisplayList())
         # DisplayList
         field.vocabulary = sampleDisplayList()
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
         # List
         field.vocabulary = ['e1', 'element2']
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
         # 2-Tuples
         field.vocabulary = [('e1', 'e1'), ('element2', 'element2')]
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
 
     def test_dynamic_vocabulary(self):
@@ -314,18 +318,23 @@ class ProcessingTest(ATSiteTestCase):
         self.failUnlessEqual(field.Vocabulary(dummy), DisplayList())
         # Method
         field.vocabulary = 'aMethod'
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
         # DisplayList
         field.vocabulary = sampleDisplayList()
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
         # List
         field.vocabulary = ['e1', 'element2']
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
         # 2-Tuples
         field.vocabulary = [('e1', 'e1'), ('element2', 'element2')]
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
         # Interface
         field.vocabulary = sampleInterfaceVocabulary()
+        dummy.invalidateSchema()
         self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
 
     def test_factory_vocabulary(self):
@@ -341,6 +350,7 @@ class ProcessingTest(ATSiteTestCase):
         # # Vocabulary factory
         field.vocabulary = ()
         field.vocabulary_factory = 'archetypes.tests.dummyvocab'
+        dummy.invalidateSchema()
         getSiteManager().registerUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
         self.failUnlessEqual(field.Vocabulary(dummy), expected)
         getSiteManager().unregisterUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')

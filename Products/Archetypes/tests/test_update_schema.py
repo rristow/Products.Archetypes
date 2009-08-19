@@ -105,12 +105,14 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
         # We give the class of our content a different schema.
         dummy.__class__.schema = schema2.copy()
+        dummy.invalidateSchema()
         # Reregister the type.  (Not needed in AT <= 1.5.1)
         registerType(Dummy1, 'Archetypes')
         # We are not testing the _isSchemaCurrent method here, so we
         # can simply cheat to let the object know that its schema is
         # not current anymore.
         dummy._signature = 'bogus'
+        dummy.invalidateSchema()
         self.failIf(dummy._isSchemaCurrent())
 
         # Our class has a TEXTFIELD2, but our content does not now it
@@ -138,6 +140,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         # This can be fixed by deleting the schema attribute of the
         # instance.
         del dummy.schema
+        dummy.invalidateSchema()
         self.failIf(dummy.getField('TEXTFIELD1').required)
 
         # At first, direct attribute access for the second field still
@@ -173,6 +176,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
     def test_remove_instance_schemas(self):
         dummy = self._dummy1
         dummy.schema = schema2.copy()
+        dummy.invalidateSchema()
         self.failUnless('schema' in dummy.__dict__)
         dummy._updateSchema()
         self.failUnless('schema' in dummy.__dict__)
@@ -182,6 +186,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
     def test_manage_update_schema(self):
         dummy = self._dummy1
         dummy.schema = schema2.copy()
+        dummy.invalidateSchema()
         self.failUnless('schema' in dummy.__dict__)
         self.failIf(dummy._isSchemaCurrent())
 
@@ -200,6 +205,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         self.failUnless(dummy._isSchemaCurrent())
         # So we cheat again and then it works.
         dummy._signature = 'bogus'
+        dummy.invalidateSchema()
         self.failIf(dummy._isSchemaCurrent())
 
         # Let's try again.  But first we cheat again.

@@ -65,6 +65,7 @@ class ChangeStorageTest(ATSiteTestCase):
                 self.failUnlessEqual(field.getStorage().getName(), 'AttributeStorage')
                 field.setStorage(dummy, MetadataStorage())
                 self.failUnlessEqual(field.getStorage().getName(), 'MetadataStorage')
+        dummy.invalidateSchema()
 
         self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
         self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
