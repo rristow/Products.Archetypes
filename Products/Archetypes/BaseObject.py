@@ -1183,9 +1183,15 @@ class BaseObject(Referenceable):
         """Any code that changes the schema at runtime must call this
         method to clear the old schema from the cache.
         """
-        ram.choose_cache('Products.Archetypes.BaseObject._Schema').ramcache.invalidateAll()
+        key = 'Products.Archetypes.BaseObject._Schema'
+        cache_chooser = queryUtility(ram.ICacheChooser)
+        if cache_chooser is not None:
+            cache = cache_chooser(key)
+        else:
+            cache = ram.RAMCacheAdapter(ram.global_cache, globalkey=key)
+        cache.ramcache.invalidateAll()
         # todo: figure out why line below is not working as expected
-        #ram.choose_cache('archetypes.schematuning.patch._Schema').ramcache.invalidate(cache_key(None, self))
+        #cache.ramcache.invalidate(cache_key(None, self))
 
 InitializeClass(BaseObject)
 
