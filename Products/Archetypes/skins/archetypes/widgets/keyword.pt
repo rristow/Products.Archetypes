@@ -30,7 +30,7 @@
             site_props context/portal_properties/site_properties|nothing;
             format widget/format | string:select;">
 
-      <tal:condition condition="python:not widget.roleBasedAdd or checkPermission('Add keywords')">
+      <tal:condition condition="python:not widget.roleBasedAdd or checkPermission('Add keywords', context)">
         <div style="width: 45%; float: right;">
           <span i18n:translate="label_new_tags">New tags</span>
           <br />
