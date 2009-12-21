@@ -28,10 +28,9 @@
     <tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
             allowedKeywords python: context.collectKeywords(fieldName, field.accessor, widget.vocab_source);
             site_props context/portal_properties/site_properties|nothing;
-            format widget/format | string:select;
-            allowRolesToAddKeywords site_props/allowRolesToAddKeywords|nothing;">
+            format widget/format | string:select;">
 
-      <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords])">
+      <tal:condition condition="python:not widget.roleBasedAdd or checkPermission('Add keywords')">
         <div style="width: 45%; float: right;">
           <span i18n:translate="label_new_tags">New tags</span>
           <br />
