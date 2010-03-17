@@ -2409,6 +2409,7 @@ class ImageField(FileField):
                     raise
                 else:
                     log_exc()
+                    self.getStorage(instance).unset(id, instance)
                     # scaling failed, don't create a scaled version
                     continue
 
