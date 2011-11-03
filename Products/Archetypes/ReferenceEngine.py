@@ -10,7 +10,7 @@ from Products.Archetypes.interfaces import IContentReference
 from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces import IReferenceCatalog
 
-from Products.Archetypes.utils import make_uuid, getRelURL, shasattr
+from Products.Archetypes.utils import make_uuid, shasattr
 from Products.Archetypes.config import (
     TOOL_NAME, UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR)
 from Products.Archetypes.exceptions import ReferenceException
@@ -140,16 +140,13 @@ class Reference(Referenceable, SimpleItem):
 
         # when copying a full site containe is the container of the plone site
         # and item is the plone site (at least for objects in portal root)
-        base = container
         rc = getToolByName(container, REFERENCE_CATALOG)
-        url = getRelURL(base, self.getPhysicalPath())
-        rc.catalog_object(self, url)
+        rc.catalog_object(self)
 
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
         rc  = getToolByName(container, REFERENCE_CATALOG)
-        url = getRelURL(container, self.getPhysicalPath())
-        rc.uncatalog_object(url)
+        rc.uncatalog_object(self)
 
 InitializeClass(Reference)
 

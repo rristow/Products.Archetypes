@@ -38,6 +38,12 @@
   <adapter
       factory=".uuid.referenceableUUID" />
 
+  <adapter 
+      for=".interfaces.referenceable.IReferenceable"
+      factory="five.intid.keyreference.KeyReferenceToPersistent"
+      trusted="y"
+      />
+
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
 

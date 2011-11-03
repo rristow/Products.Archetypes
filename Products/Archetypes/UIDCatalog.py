@@ -17,13 +17,13 @@ from Acquisition import aq_base, aq_parent, aq_inner
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products.ZCatalog.CatalogBrains import AbstractCatalogBrain
+from Products.ZCatalog.Catalog import _deprecated
 from Products import CMFCore
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.interfaces import IUIDCatalog
-from Products.Archetypes.utils import getRelURL
 from plone.indexer.interfaces import IIndexableObject
 from plone.indexer.decorator import indexer
 from plone.uuid.interfaces import IUUID, IUUIDAware
@@ -90,7 +90,6 @@ class UIDCatalogBrains(AbstractCatalogBrain):
         """
         obj = None
         try:
-            path = self.getPath()
             try:
                 portal = getToolByName(self, 'portal_url').getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
@@ -170,7 +169,7 @@ class UIDResolver(Base):
             # ObjectManager may raise a KeyError when the object isn't there
             return None
 
-    def catalog_object(self, obj, uid=None, **kwargs):
+    def catalog_object(self, obj, uid=_deprecated, **kwargs):
         """Use the relative path from the portal root as uid
 
         Ordinary the catalog is using the path from root towards object but we
@@ -189,10 +188,8 @@ class UIDResolver(Base):
             portal_path_len = len(portal_path)
             self._v_portal_path_len = portal_path_len
 
-        relpath = obj.getPhysicalPath()[portal_path_len:]
-        uid = '/'.join(relpath)
-        __traceback_info__ = (repr(obj), uid)
-        ZCatalog.catalog_object(self, obj, uid, **kwargs)
+        __traceback_info__ = (repr(obj))
+        ZCatalog.catalog_object(self, obj, uid=uid, **kwargs)
 
 InitializeClass(UIDResolver)
 
@@ -217,7 +214,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         self._catalog = UIDBaseCatalog()
 
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
-    def catalog_object(self, object, uid, idxs=[],
+    def catalog_object(self, object, uid=_deprecated, idxs=[],
                        update_metadata=1, pghandler=None):
 
         w = object
@@ -227,15 +224,15 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
             if wrapper is not None:
                 w = wrapper
 
-        ZCatalog.catalog_object(self, w, uid, idxs,
-                                update_metadata, pghandler=pghandler)
+        ZCatalog.catalog_object(self, w, uid=_deprecated, idxs=idxs,
+                                update_metadata=update_metadata,
+                                pghandler=pghandler)
 
-    def _catalogObject(self, obj, path):
+    def _catalogObject(self, obj):
         """Catalog the object. The object will be cataloged with the absolute
            path in case we don't pass the relative url.
         """
-        url = getRelURL(self, obj.getPhysicalPath())
-        self.catalog_object(obj, url)
+        self.catalog_object(obj)
 
     security.declareProtected(CMFCore.permissions.ManagePortal, 'manage_rebuildCatalog')
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):

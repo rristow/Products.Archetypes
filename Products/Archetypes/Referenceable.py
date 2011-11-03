@@ -1,4 +1,6 @@
 from zope.interface import implements
+from zope import component
+from zope import intid
 
 from plone.uuid.interfaces import IUUID
 
@@ -118,16 +120,15 @@ class Referenceable(CopySource):
         if tool is None: # pragma: no cover
             return ''
         tool = aq_inner(tool)
-        traverse = aq_parent(tool).unrestrictedTraverse
 
         _catalog = tool._catalog
         rids = _catalog.indexes['UID']._index.get(uid, ())
         if isinstance(rids, int):
             rids = (rids, )
 
+        intids = component.getUtility(intid.IIntIds, context=self)
         for rid in rids:
-            path = _catalog.paths[rid]
-            obj = traverse(path, default=None)
+            obj = intids.getObject(rid)
             if obj is not None:
                 return obj
 
@@ -311,8 +312,7 @@ class Referenceable(CopySource):
     def _catalogUID(self, aq, uc=None):
         if not uc:
             uc = getToolByName(aq, config.UID_CATALOG)
-        url = self._getURL()
-        uc.catalog_object(self, url)
+        uc.catalog_object(self)
 
     def _uncatalogUID(self, aq, uc=None):
         if isFactoryContained(self):

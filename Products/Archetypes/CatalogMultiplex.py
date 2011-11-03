@@ -33,19 +33,17 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
         if isFactoryContained(self):
             return
         catalogs = self.getCatalogs()
-        url = self.__url()
         for c in catalogs:
-            c.catalog_object(self, url)
+            c.catalog_object(self)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
         if isFactoryContained(self):
             return
         catalogs = self.getCatalogs()
-        url = self.__url()
         for c in catalogs:
-            if c._catalog.uids.get(url, None) is not None:
-                c.uncatalog_object(url)
+            if c.getrid(self) is not None:
+                c.uncatalog_object(self)
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
     def reindexObjectSecurity(self, skip_self=False):
@@ -83,7 +81,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
                 # Recatalog with the same catalog uid.
                 catalog.reindexObject(ob, idxs=self._cmf_security_indexes,
-                                        update_metadata=0, uid=brain_path)
+                                      update_metadata=0)
 
 
 
@@ -110,8 +108,6 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
         if not catalogs:
             return
 
-        url = self.__url()
-
         for c in catalogs:
             if c is not None:
                 # We want the intersection of the catalogs idxs
@@ -120,7 +116,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
                 indexes = c.indexes()
                 if idxs:
                     lst = [i for i in idxs if i in indexes]
-                c.catalog_object(self, url, idxs=lst)
+                c.catalog_object(self, idxs=lst)
 
         # We only make this call if idxs is not passed.
         #
