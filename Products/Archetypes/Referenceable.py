@@ -319,13 +319,12 @@ class Referenceable(CopySource):
             return
         if not uc:
             uc = getToolByName(self, config.UID_CATALOG)
-        url = self._getURL()
         # XXX This is an ugly workaround. This method shouldn't be called
         # twice for an object in the first place, so we don't have to check
         # if it is still cataloged.
-        rid = uc.getrid(url)
+        rid = uc.getrid(self)
         if rid is not None:
-            uc.uncatalog_object(url)
+            uc.uncatalog_object(rid)
 
     def _catalogRefs(self, aq, uc=None, rc=None):
         annotations = self._getReferenceAnnotations()
@@ -335,9 +334,8 @@ class Referenceable(CopySource):
             if not rc:
                 rc = getToolByName(aq, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
-                url = getRelURL(uc, ref.getPhysicalPath())
-                uc.catalog_object(ref, url)
-                rc.catalog_object(ref, url)
+                uc.catalog_object(ref)
+                rc.catalog_object(ref)
                 ref._catalogRefs(uc, uc, rc)
 
     def _uncatalogRefs(self, aq, uc=None, rc=None):
@@ -350,16 +348,15 @@ class Referenceable(CopySource):
             if not rc:
                 rc = getToolByName(self, config.REFERENCE_CATALOG)
             for ref in annotations.objectValues():
-                url = getRelURL(uc, ref.getPhysicalPath())
                 # XXX This is an ugly workaround. This method shouldn't be
                 # called twice for an object in the first place, so we don't
                 # have to check if it is still cataloged.
-                uc_rid = uc.getrid(url)
+                uc_rid = uc.getrid(ref)
                 if uc_rid is not None:
-                    uc.uncatalog_object(url)
-                rc_rid = rc.getrid(url)
+                    uc.uncatalog_object(uc_rid)
+                rc_rid = rc.getrid(ref)
                 if rc_rid is not None:
-                    rc.uncatalog_object(url)
+                    rc.uncatalog_object(rc_rid)
 
     def _getCopy(self, container):
         # We only set the '_v_is_cp' flag here if it was already set.

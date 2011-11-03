@@ -41,11 +41,12 @@ from Products.Archetypes import config
 from Products.Archetypes.references import HoldingReference, CascadeReference
 from OFS.ObjectManager import BeforeDeleteException
 import transaction
+from Products.CMFCore.PortalContent import PortalContent
 
 from plone.uuid.interfaces import IAttributeUUID, IUUID
 from plone.indexer import wrapper
 
-class DexterityLike(object):
+class DexterityLike(PortalContent):
     """Create a new class non based on Archetypes"""
     interface.implements(IAttributeUUID)
 
@@ -59,7 +60,7 @@ class DexterityLike(object):
 
     def getPhysicalPath(self):
         if self.path[-1] != self.id:
-            self.path.append(self.id)
+            self.path += (self.id, )
         return self.path
 
     def manage_fixupOwnershipAfterAdd(self):
@@ -316,9 +317,9 @@ class ReferenceCatalogTests(ATSiteTestCase):
     def test_TitleIndexer(self):
         uc = getattr(self.portal, config.UID_CATALOG)
         dext = DexterityLike()
-        dext.path = list(self.folder.getPhysicalPath())
+        dext.path = tuple(self.folder.getPhysicalPath())
         self.folder[dext.id] = dext
-        uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
+        uc.catalog_object(dext)
         results = uc(Title=dext.Title())
         self.failUnless(len(results)==1)
         self.failUnless(type(dext.Title())==unicode)
@@ -327,12 +328,12 @@ class ReferenceCatalogTests(ATSiteTestCase):
     def test_UIDIndexer(self):
         uc = getattr(self.portal, config.UID_CATALOG)
         dext = DexterityLike()
-        dext.path = list(self.folder.getPhysicalPath())
+        dext.path = tuple(self.folder.getPhysicalPath())
         self.folder[dext.id] = dext
         notify(ObjectCreatedEvent(dext)) #it supposed to add uuid attribute
 
         #catalog dext instance
-        uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
+        uc.catalog_object(dext)
 
         #check lookup
         uuid = IUUID(dext, None)
@@ -346,13 +347,13 @@ class ReferenceCatalogTests(ATSiteTestCase):
         # create a archetype based content instance
         ob = makeContent(self.folder, portal_type='DDocument',id='mydocument')
         uc = getattr(self.portal, config.UID_CATALOG)
-        uc.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
+        uc.catalog_object(ob)
         # create a non archetype based content
         dext = DexterityLike()
-        dext.path = list(self.folder.getPhysicalPath())
+        dext.path = tuple(self.folder.getPhysicalPath())
         self.folder[dext.id] = dext
         notify(ObjectCreatedEvent(dext)) #it supposed to add uuid attribute
-        uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
+        uc.catalog_object(dext)
         # create the relation between those
         ob.setRelated(dext)
         self.assertEqual(ob.getRelated()[0], dext)
