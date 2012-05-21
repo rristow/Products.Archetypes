@@ -7,15 +7,10 @@
   <body>
 
     <!-- String Widgets -->
-    <metal:view_macro define-macro="view"
-            tal:define="kssClassesView context/@@kss_field_decorator_view;
-                        getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
+    <metal:view_macro define-macro="view">
         <span metal:define-macro="string-field-view"
-            tal:define="kss_class python:getKssClasses(fieldName,
-                              templateId='widgets/string', macro='string-field-view');
-                              uid context/UID|nothing"
-            tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName-$uid">
+            tal:define="uid context/UID|nothing"
+            tal:attributes="id string:parent-fieldname-$fieldName-$uid">
             <span metal:define-slot="inside"
                   tal:replace="accessor">string</span>
         </span>

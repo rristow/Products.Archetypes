@@ -45,14 +45,6 @@
 
   <browser:page
       for="*"
-      name="kss_field_decorator_view"
-      permission="zope2.View"
-      class=".fields.DefaultFieldDecoratorView"
-      allowed_attributes="getKssClassesInlineEditable getKssClasses"
-      />
-
-  <browser:page
-      for="*"
       name="at_selection_widget"
       class=".widgets.SelectionWidget"
       permission="zope.Public"
