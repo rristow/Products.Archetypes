@@ -1,21 +1,6 @@
 
 /* Base kss resource for Archetypes */
 
-input.blurrable:blur,
-select.blurrable:blur,
-textarea.blurrable:blur {
-    action-server:                kssValidateField;
-    kssValidateField-fieldname:   kssAttr('atfieldname', true);
-    kssValidateField-value:       currentFormVar();
-    kssValidateField-uid:         kssAttr('atuid', true);
-}
-
-form[action=criterion_edit_form] input.blurrable:blur,
-form[action=criterion_edit_form] select.blurrable:blur,
-form[action=criterion_edit_form] textarea.blurrable:blur {
-    action-cancel: kssValidateField;
-}
-
 .inlineEditable:click {
     evt-click-allowbubbling: true;
     action-server: replaceField;
