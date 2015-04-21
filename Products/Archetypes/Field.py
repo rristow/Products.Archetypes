@@ -1473,6 +1473,9 @@ class TextField(FileField):
             kwargs['field'] = self
             storage = self.getStorage(instance)
             value = storage.get(self.getName(), instance, **kwargs)
+            # fix PostGreSql issue: http://sourceforge.net/p/archetypes/mailman/message/20296702/
+            if value is None:
+                value = ''
             if not IBaseUnit.providedBy(value):
                 value = self._wrapValue(instance, value)
         except AttributeError:
